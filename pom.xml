@@ -4,7 +4,7 @@
   <groupId>com.gregory.learning</groupId>
   <artifactId>snake</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <name>snake</name>
   <url>http://maven.apache.org</url>
   <dependencies>
@@ -24,6 +24,18 @@
         <configuration>
           <source>11</source>
           <target>11</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <!-- Build an executable JAR -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>com.gregory.learning.App</mainClass>
+            </manifest>
+          </archive>
         </configuration>
       </plugin>
     </plugins>
