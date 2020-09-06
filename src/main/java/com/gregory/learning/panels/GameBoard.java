@@ -68,7 +68,7 @@ public class GameBoard extends JPanel implements KeyListener {
 
     // Draw score
     g.setColor(Color.BLACK);
-    g.drawString("Score: " + score, 10, 470);
+    g.drawString("Score: " + score, 10, 450);
   }
 
   @Override

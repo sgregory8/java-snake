@@ -4,7 +4,7 @@
   <groupId>com.gregory.learning</groupId>
   <artifactId>snake</artifactId>
   <packaging>jar</packaging>
-  <version>1.0</version>
+  <version>1.01</version>
   <name>snake</name>
   <url>http://maven.apache.org</url>
   <dependencies>

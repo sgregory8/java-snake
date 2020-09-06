@@ -30,7 +30,7 @@ public class TitlePanel extends JPanel {
         (int) gif.getPreferredSize().getWidth(),
         (int) gif.getPreferredSize().getHeight());
     playSign.setBounds((int) (500 - playSign.getPreferredSize().getWidth()) / 2,
-        470 - (int) playSign.getPreferredSize().getHeight(),
+        450 - (int) playSign.getPreferredSize().getHeight(),
         (int) playSign.getPreferredSize().getWidth(),
         (int) playSign.getPreferredSize().getHeight());
     add(gif);
