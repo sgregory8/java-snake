@@ -1,11 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.gregory.learning</groupId>
-  <artifactId>snake</artifactId>
+  <artifactId>Snake</artifactId>
   <packaging>jar</packaging>
   <version>1.01</version>
-  <name>snake</name>
+  <name>Snake</name>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
@@ -13,6 +14,11 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.fvarrui</groupId>
+      <artifactId>javapackager</artifactId>
+      <version>1.2.0</version>
     </dependency>
   </dependencies>
 
@@ -27,16 +33,38 @@
         </configuration>
       </plugin>
       <plugin>
-        <!-- Build an executable JAR -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
+        <groupId>io.github.fvarrui</groupId>
+        <artifactId>javapackager</artifactId>
+        <version>1.2.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <id>make_dmg</id>
+            <goals>
+              <goal>package</goal>
+            </goals>
+            <configuration>
+              <name>Snake</name>
               <mainClass>com.gregory.learning.App</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
+              <bundleJre>true</bundleJre>
+              <jrePath>/Users/gregory1/Downloads/jdk-11.0.2.jdk</jrePath>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>package</phase>
+            <id>make_windows</id>
+            <goals>
+              <goal>package</goal>
+            </goals>
+            <configuration>
+              <name>Snake</name>
+              <mainClass>com.gregory.learning.App</mainClass>
+              <bundleJre>true</bundleJre>
+              <jrePath>/Users/gregory1/Downloads/jdk-11</jrePath>
+              <platform>windows</platform>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
