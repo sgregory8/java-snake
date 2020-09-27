@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JPanel;
@@ -18,6 +19,7 @@ public class GameBoard extends JPanel implements KeyListener {
   private Timer timer;
   private boolean gameOver = true;
   private int score = 0;
+  private Random random = new Random();
 
   {
     snakeBodyCoords.add(new int[]{10, 8});
@@ -26,7 +28,6 @@ public class GameBoard extends JPanel implements KeyListener {
   }
 
   private int[] snakeHeadCoords = {10, 8};
-  private int[] snakeTailCoords = {snakeBodyCoords.get(0)[0], snakeBodyCoords.get(0)[1]};
   private int[] foodCoords = null;
 
   public GameBoard() {
@@ -155,21 +156,24 @@ public class GameBoard extends JPanel implements KeyListener {
     // Spawn food if needed
     if (foodCoords == null) {
       foodCoords = new int[2];
-      int foodX = (int) (Math.random() * 19);
-      int foodY = (int) (Math.random() * 19);
+      foodCoords[0] = random.nextInt(20);
+      foodCoords[1] = random.nextInt(20);
 
       boolean matchFound = false;
+
       for (int[] snakeBodyCoord : snakeBodyCoords) {
-        if (snakeBodyCoord[0] == foodX && snakeBodyCoord[1] == foodY) {
+        System.out.println("Snake x: " + snakeBodyCoord[0]);
+        System.out.println("Snake y: " + snakeBodyCoord[1]);
+        if (snakeBodyCoord[0] == foodCoords[0] && snakeBodyCoord[1] == foodCoords[1]) {
+          matchFound = true;
+        }
+        if (snakeHeadCoords[0] == foodCoords[0] && snakeHeadCoords[1] == foodCoords[1]) {
           matchFound = true;
         }
       }
 
-      if (!matchFound) {
-        foodCoords[0] = foodX;
-        foodCoords[1] = foodY;
-
-      } else {
+      if (matchFound) {
+        foodCoords = null;
         handleFood();
       }
     }
@@ -179,6 +183,7 @@ public class GameBoard extends JPanel implements KeyListener {
       score += 1;
       foodCoords = null;
     }
+
   }
 
   private void addToSnake() {
@@ -188,6 +193,7 @@ public class GameBoard extends JPanel implements KeyListener {
       for (int[] snakePiece : snakeBodyCoords) {
         if (snakePiece[0] == foodPiece[0] && snakePiece[1] == foodPiece[1]) {
           safeToAdd = false;
+          break;
         }
       }
       if (safeToAdd) {
