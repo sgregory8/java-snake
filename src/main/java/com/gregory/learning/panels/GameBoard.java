@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 public class GameBoard extends JPanel implements KeyListener {
 
   private String direction = "NONE";
+  private boolean[][] gameBoard = new boolean[20][20];
   private ArrayList<short[]> snakeBodyCoords = new ArrayList<>();
   private ArrayList<int[]> foodToAdd = new ArrayList<int[]>();
   private Timer timer;
@@ -109,34 +110,51 @@ public class GameBoard extends JPanel implements KeyListener {
 
   public void moveSnake() {
     short[] newSnakeHead;
+    short[] removedPiece = null;
     switch (direction) {
       case "NONE":
         break;
       case "UP":
         // Get snake head and update it's position
-        snakeBodyCoords.remove(snakeBodyCoords.size() - 1);
-        newSnakeHead = new short[]{snakeBodyCoords.get(0)[0], (short) (snakeBodyCoords.get(0)[1] - 1)};
+        removedPiece = snakeBodyCoords.remove(snakeBodyCoords.size() - 1);
+        newSnakeHead = new short[]{snakeBodyCoords.get(0)[0],
+            (short) (snakeBodyCoords.get(0)[1] - 1)};
         snakeHeadCoords = new short[]{newSnakeHead[0], newSnakeHead[1]};
         snakeBodyCoords.add(0, newSnakeHead);
         break;
       case "DOWN":
-        snakeBodyCoords.remove(snakeBodyCoords.size() - 1);
-        newSnakeHead = new short[]{snakeBodyCoords.get(0)[0], (short) (snakeBodyCoords.get(0)[1] + 1)};
+        removedPiece = snakeBodyCoords.remove(snakeBodyCoords.size() - 1);
+        newSnakeHead = new short[]{snakeBodyCoords.get(0)[0],
+            (short) (snakeBodyCoords.get(0)[1] + 1)};
         snakeHeadCoords = new short[]{newSnakeHead[0], newSnakeHead[1]};
         snakeBodyCoords.add(0, newSnakeHead);
         break;
       case "LEFT":
-        snakeBodyCoords.remove(snakeBodyCoords.size() - 1);
-        newSnakeHead = new short[]{(short) (snakeBodyCoords.get(0)[0] - 1), snakeBodyCoords.get(0)[1]};
+        removedPiece = snakeBodyCoords.remove(snakeBodyCoords.size() - 1);
+        newSnakeHead = new short[]{(short) (snakeBodyCoords.get(0)[0] - 1),
+            snakeBodyCoords.get(0)[1]};
         snakeHeadCoords = new short[]{newSnakeHead[0], newSnakeHead[1]};
         snakeBodyCoords.add(0, newSnakeHead);
         break;
       case "RIGHT":
-        snakeBodyCoords.remove(snakeBodyCoords.size() - 1);
-        newSnakeHead = new short[]{(short) (snakeBodyCoords.get(0)[0] + 1), snakeBodyCoords.get(0)[1]};
+        removedPiece = snakeBodyCoords.remove(snakeBodyCoords.size() - 1);
+        newSnakeHead = new short[]{(short) (snakeBodyCoords.get(0)[0] + 1),
+            snakeBodyCoords.get(0)[1]};
         snakeHeadCoords = new short[]{newSnakeHead[0], newSnakeHead[1]};
         snakeBodyCoords.add(0, newSnakeHead);
         break;
+    }
+    if (removedPiece != null) {
+      gameBoard[removedPiece[0]][removedPiece[1]] = false;
+    }
+    for (short[] snakeBodyCoord : snakeBodyCoords) {
+      if (snakeBodyCoord[0] > 0 && snakeHeadCoords[0] > 0 && snakeBodyCoord[0] < 20
+          && snakeHeadCoords[0] < 20 && snakeBodyCoord[1] > 0 && snakeHeadCoords[1] > 0
+          && snakeBodyCoord[1] < 20
+          && snakeHeadCoords[1] < 20) {
+        gameBoard[snakeBodyCoord[0]][snakeBodyCoord[1]] = true;
+        gameBoard[snakeHeadCoords[0]][snakeHeadCoords[1]] = true;
+      }
     }
   }
 
@@ -156,25 +174,19 @@ public class GameBoard extends JPanel implements KeyListener {
     // Spawn food if needed
     if (foodCoords == null) {
       foodCoords = new int[2];
-      foodCoords[0] = random.nextInt(20);
-      foodCoords[1] = random.nextInt(20);
 
-      boolean matchFound = false;
+      int rand1 = random.nextInt(20);
+      int rand2 = random.nextInt(20);
 
-      for (short[] snakeBodyCoord : snakeBodyCoords) {
-        System.out.println("Snake x: " + snakeBodyCoord[0]);
-        System.out.println("Snake y: " + snakeBodyCoord[1]);
-        if (snakeBodyCoord[0] == foodCoords[0] && snakeBodyCoord[1] == foodCoords[1]) {
-          matchFound = true;
+
+      outerloop: for (int i = 0; i < gameBoard.length; i++) {
+        for (int j = 0; j < gameBoard.length; j++) {
+          if (!gameBoard[(rand1 + i) % gameBoard.length][(rand2 + j) % gameBoard.length]) {
+            foodCoords[0] = rand1 + i % gameBoard.length;
+            foodCoords[1] = rand2 + j % gameBoard.length;
+            break outerloop;
+          }
         }
-        if (snakeHeadCoords[0] == foodCoords[0] && snakeHeadCoords[1] == foodCoords[1]) {
-          matchFound = true;
-        }
-      }
-
-      if (matchFound) {
-        foodCoords = null;
-        handleFood();
       }
     }
     // Check for food collision
@@ -235,6 +247,7 @@ public class GameBoard extends JPanel implements KeyListener {
     snakeHeadCoords[1] = 8;
     foodCoords = null;
     score = 0;
+    gameBoard = new boolean[20][20];
   }
 
   // Don't need these
