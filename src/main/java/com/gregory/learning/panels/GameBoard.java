@@ -2,6 +2,8 @@ package com.gregory.learning.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -21,6 +23,10 @@ public class GameBoard extends JPanel implements KeyListener {
   private boolean gameOver = true;
   private short score = 0;
   private Random random = new Random();
+  private Boolean showScore;
+  private short finalScore;
+  private boolean isWinner = false;
+  private boolean showMax;
 
   {
     snakeBodyCoords.add(new short[]{10, 8});
@@ -60,6 +66,7 @@ public class GameBoard extends JPanel implements KeyListener {
 
     // Draw snake
     for (short[] snakePart : snakeBodyCoords) {
+      System.out.println("painting snake parts: " + snakeBodyCoords.size());
       g.setColor(Color.RED);
       g.fillRect(snakePart[0] * 20 + xOffset, snakePart[1] * 20 + yOffset, 20, 20);
     }
@@ -71,6 +78,20 @@ public class GameBoard extends JPanel implements KeyListener {
     // Draw score
     g.setColor(Color.BLACK);
     g.drawString("Score: " + score, 10, 450);
+
+    if (showScore != null && showScore) {
+      String finalMessage;
+      if (showMax) {
+        finalMessage = "YOU BEAT SNAKE WITH " + finalScore + "POINTS";
+      } else {
+        finalMessage = "Final Score: " + finalScore;
+      }
+      g.setColor(Color.BLACK);
+      g.setFont(new Font(g.getFont().toString(), Font.PLAIN, 30));
+      FontMetrics metrics = g.getFontMetrics();
+      g.drawString(finalMessage, 250 - (metrics.stringWidth(finalMessage) / 2),
+          250 - (metrics.getHeight() / 2) + metrics.getHeight());
+    }
   }
 
   @Override
@@ -98,19 +119,22 @@ public class GameBoard extends JPanel implements KeyListener {
 
   public void gameLoop() {
     if (!gameOver) {
-      moveSnake();
       handleFood();
+      moveSnake();
       addToSnake();
       checkBorderCollision();
       checkSnakeHeadCollision();
+      checkWinner();
       repaint();
     }
     repaint();
   }
 
   public void moveSnake() {
+    showMax = false;
     short[] newSnakeHead;
     short[] removedPiece = null;
+    showScore = null;
     switch (direction) {
       case "NONE":
         break;
@@ -148,8 +172,8 @@ public class GameBoard extends JPanel implements KeyListener {
       gameBoard[removedPiece[0]][removedPiece[1]] = false;
     }
     for (short[] snakeBodyCoord : snakeBodyCoords) {
-      if (snakeBodyCoord[0] > 0 && snakeHeadCoords[0] > 0 && snakeBodyCoord[0] < 20
-          && snakeHeadCoords[0] < 20 && snakeBodyCoord[1] > 0 && snakeHeadCoords[1] > 0
+      if (snakeBodyCoord[0] >= 0 && snakeHeadCoords[0] >= 0 && snakeBodyCoord[0] < 20
+          && snakeHeadCoords[0] < 20 && snakeBodyCoord[1] >= 0 && snakeHeadCoords[1] >= 0
           && snakeBodyCoord[1] < 20
           && snakeHeadCoords[1] < 20) {
         gameBoard[snakeBodyCoord[0]][snakeBodyCoord[1]] = true;
@@ -171,31 +195,38 @@ public class GameBoard extends JPanel implements KeyListener {
   }
 
   private void handleFood() {
-    // Spawn food if needed
-    if (foodCoords == null) {
-      foodCoords = new int[2];
-
-      int rand1 = random.nextInt(20);
-      int rand2 = random.nextInt(20);
-
-
-      outerloop: for (int i = 0; i < gameBoard.length; i++) {
-        for (int j = 0; j < gameBoard.length; j++) {
-          if (!gameBoard[(rand1 + i) % gameBoard.length][(rand2 + j) % gameBoard.length]) {
-            foodCoords[0] = rand1 + i % gameBoard.length;
-            foodCoords[1] = rand2 + j % gameBoard.length;
-            break outerloop;
-          }
-        }
-      }
-    }
     // Check for food collision
-    if (snakeHeadCoords[0] == foodCoords[0] && snakeHeadCoords[1] == foodCoords[1]) {
+    if (foodCoords != null && snakeHeadCoords[0] == foodCoords[0]
+        && snakeHeadCoords[1] == foodCoords[1]) {
       foodToAdd.add(foodCoords);
       score += 1;
       foodCoords = null;
     }
 
+    boolean gameCanContinue = false;
+
+    // Spawn food if needed
+    if (foodCoords == null) {
+      foodCoords = new int[2];
+
+      int rand1 = random.nextInt(gameBoard.length);
+      int rand2 = random.nextInt(gameBoard.length);
+
+      outerloop:
+      for (int i = 0; i < gameBoard.length; i++) {
+        for (int j = 0; j < gameBoard.length; j++) {
+          if (!gameBoard[(rand1 + i) % gameBoard.length][(rand2 + j) % gameBoard.length]) {
+            foodCoords[0] = (rand1 + i) % gameBoard.length;
+            foodCoords[1] = (rand2 + j) % gameBoard.length;
+            gameCanContinue = true;
+            break outerloop;
+          }
+        }
+      }
+      if (!gameCanContinue) {
+        isWinner = true;
+      }
+    }
   }
 
   private void addToSnake() {
@@ -228,6 +259,13 @@ public class GameBoard extends JPanel implements KeyListener {
     }
   }
 
+  private void checkWinner() {
+    if (isWinner) {
+      showMax = true;
+      resetGame();
+    }
+  }
+
   private void checkSnakeHeadCollision() {
     for (short i = 1; i < snakeBodyCoords.size(); i++) {
       if (snakeBodyCoords.get(i)[0] == snakeHeadCoords[0]
@@ -246,8 +284,12 @@ public class GameBoard extends JPanel implements KeyListener {
     snakeHeadCoords[0] = 10;
     snakeHeadCoords[1] = 8;
     foodCoords = null;
+    finalScore = score;
+    showScore = true;
     score = 0;
     gameBoard = new boolean[20][20];
+    isWinner = false;
+    foodToAdd.clear();
   }
 
   // Don't need these
